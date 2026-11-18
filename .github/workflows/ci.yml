@@ -1,0 +1,34 @@
+name: macOS CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Show Swift version
+        run: swift --version
+      - name: Validate shell scripts and app metadata
+        run: |
+          for script in scripts/*.sh; do bash -n "$script"; done
+          plutil -lint Resources/Info.plist
+      - name: Run unit tests
+        run: swift test
+      - name: Build release executable
+        run: swift build --configuration release
