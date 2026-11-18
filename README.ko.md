@@ -20,7 +20,19 @@
   <img src="docs/assets/trackpad-mode.png" width="360" alt="트랙패드 청소 모드">
 </p>
 
-## 빌드와 실행
+## 다운로드와 설치
+
+**[macOS용 KeyWipe 다운로드](https://github.com/mir-stream/keywipe/releases/latest/download/KeyWipe-macOS-universal.zip)** · [릴리스 안내](https://github.com/mir-stream/keywipe/releases/latest)
+
+macOS 14 이상에서 사용할 수 있습니다. Apple Silicon과 Intel 실행 파일을 함께 담은 Universal 앱이며, Developer ID 서명과 Apple 공증을 적용했습니다.
+
+1. `KeyWipe-macOS-universal.zip`을 내려받아 압축을 풉니다.
+2. 실행 중인 KeyWipe가 있다면 종료하고, **KeyWipe.app**을 **응용 프로그램**으로 옮깁니다.
+3. 앱을 열고 아래 안내에 따라 손쉬운 사용 권한을 허용합니다.
+
+다운로드한 앱을 사용할 때는 Xcode나 서명 인증서가 필요 없습니다. 다운로드 파일과 함께 SHA-256 체크섬도 제공합니다.
+
+## 소스에서 빌드하기
 
 필요한 환경:
 
@@ -44,7 +56,7 @@ KEYWIPE_SIGNING_IDENTITY="Apple Development: Your Name (IDENTIFIER)" bash script
 
 업데이트할 때도 같은 인증서와 앱 식별자를 유지해야 합니다. macOS는 앱의 서명을 기준으로 권한을 관리하며, 임시 서명(ad-hoc)은 재빌드 때 앱의 식별 기준이 달라집니다. 권한 항목이 꼬이는 문제를 예방하기 위해 패키징 스크립트는 임시 서명을 허용하지 않습니다.
 
-현재는 **소스 빌드 방식**으로 제공하며, 공증된 앱 다운로드는 제공하지 않습니다. `swift test`와 `swift build`에는 인증서가 필요 없습니다. 실제 사용할 때는 권한이 터미널 대신 KeyWipe에 연결되도록 패키징한 `.app`을 실행하세요.
+`swift test`와 `swift build`에는 인증서가 필요 없습니다. 실제 사용할 때는 권한이 터미널 대신 KeyWipe에 연결되도록 패키징한 `.app`을 실행하세요. 로컬 빌드와 배포 앱은 서명 종류가 다르므로 서로 바꿔 사용할 때 손쉬운 사용 권한을 다시 허용해야 할 수 있습니다.
 
 ## 처음 사용하기
 

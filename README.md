@@ -22,7 +22,19 @@ Trackpad mode also blocks external mice so that nearby input cannot interrupt cl
 
 The interface is currently in Korean. The mode tabs are **키보드 청소** (keyboard) and **트랙패드 청소** (trackpad).
 
-## Build and run
+## Download and install
+
+**[Download KeyWipe for macOS](https://github.com/mir-stream/keywipe/releases/latest/download/KeyWipe-macOS-universal.zip)** · [Release notes](https://github.com/mir-stream/keywipe/releases/latest)
+
+Requires macOS 14 or later. The universal app includes both Apple Silicon and Intel binaries and is Developer ID signed and notarized by Apple.
+
+1. Download and unzip `KeyWipe-macOS-universal.zip`.
+2. Quit any running copy of KeyWipe, then move **KeyWipe.app** to **Applications**.
+3. Open it and grant Accessibility permission as described below.
+
+No Xcode or signing certificate is needed to use the release. SHA-256 checksums are provided alongside the download.
+
+## Build from source
 
 Requirements:
 
@@ -46,7 +58,7 @@ KEYWIPE_SIGNING_IDENTITY="Apple Development: Your Name (IDENTIFIER)" bash script
 
 Use the same signing identity and bundle identifier across builds. macOS associates privacy permissions with the app's signing identity; ad-hoc signatures change that identity on rebuild. The packaging script rejects ad-hoc signing to avoid stale Accessibility grants.
 
-This repository currently provides **source builds**, not a notarized app download. `swift test` and `swift build` do not require a signing certificate. Use the packaged `.app` for normal use so permissions belong to KeyWipe rather than your terminal.
+`swift test` and `swift build` do not require a signing certificate. Use the packaged `.app` for normal use so permissions belong to KeyWipe rather than your terminal. The local build uses a development identity; the downloadable release uses a distribution identity. Switching between them may require granting Accessibility permission again.
 
 ## First use
 

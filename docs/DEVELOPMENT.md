@@ -9,6 +9,8 @@
 | `Tests/KeyWipeCoreTests` | Unit tests that do not enable global input filtering |
 | `Resources/Info.plist` | App identity, version, and minimum macOS version |
 | `scripts/build.sh` | Release build, icon generation, app packaging, and certificate signing |
+| `scripts/package-release.sh` | Universal app build with Developer ID signing and Hardened Runtime |
+| `scripts/finalize-release.sh` | Staple and validate notarization, then create the public ZIP and checksums |
 | `scripts/verify-event-tap.sh` | Tagged synthetic event pipeline checks |
 | `scripts/verify-interaction.sh` | Native-window click/scroll delivery check |
 
@@ -73,9 +75,32 @@ cat dist/diagnostics.txt
 
 Keep the same certificate identity and bundle identifier across updates. Do not replace certificate signing with `codesign --sign -`: an ad-hoc designated requirement depends on that build's hash and can leave a stale Accessibility entry after the executable changes.
 
-The build script selects a single available Apple Development identity or accepts `KEYWIPE_SIGNING_IDENTITY`. Signing keys and certificates stay in the developer's keychain; they are not repository assets or CI secrets. Builds are for local development and are not notarized distribution packages.
+The local build script selects a single available Apple Development identity or accepts `KEYWIPE_SIGNING_IDENTITY`. Signing keys and certificates stay in the developer's keychain; they are not repository assets or CI secrets. This build is intended for local development; use the release workflow below for distribution.
 
 Quit the running app before replacing its bundle. After a deliberate signing-identity change, remove the old Accessibility entry and grant the current app permission again.
+
+## Publishing a macOS release
+
+The release build is separate from `dist/KeyWipe.app`, so packaging does not replace a running development copy. It compiles arm64 and x86_64 binaries, combines them with `lipo`, and signs with Developer ID, Hardened Runtime, and a secure timestamp. The script auto-selects a single Developer ID Application identity or accepts `KEYWIPE_RELEASE_SIGNING_IDENTITY`.
+
+```sh
+VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' Resources/Info.plist)
+bash scripts/package-release.sh
+xcrun notarytool submit "dist/releases/v$VERSION/KeyWipe-notary.zip" \
+  --keychain-profile "YOUR_NOTARY_PROFILE" --wait
+```
+
+After Apple reports **Accepted**, inspect the notarization log and finalize:
+
+```sh
+xcrun notarytool log SUBMISSION_ID --keychain-profile "YOUR_NOTARY_PROFILE" \
+  "dist/releases/v$VERSION/notary-log.json"
+bash scripts/finalize-release.sh
+```
+
+Finalization requires a valid stapled ticket, a valid signature, and Gatekeeper approval before producing `KeyWipe-macOS-universal.zip` and `SHA256SUMS.txt`. The notarization input ZIP is not the public download: the final ZIP contains the app with its ticket attached for offline verification.
+
+Publish those two files on a GitHub release tagged at the source commit used for the build. Verify the downloaded ZIP against its checksum, and test the app on a target Mac. Do not upload keychain profiles, credentials, certificates, or local notarization logs.
 
 ## Device validation
 
